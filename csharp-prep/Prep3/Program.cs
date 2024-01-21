@@ -31,6 +31,7 @@ class Program
         // Ask for a random number
         Random randomGenerator = new Random();
         int randomNumber = randomGenerator.Next(1, 11);
+        
     bool isCorrect = false;
     while (!isCorrect)
     {
