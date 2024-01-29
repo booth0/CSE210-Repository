@@ -1,13 +1,10 @@
+namespace Learning02;
+
 using System;
+using System.Collections;
+using System.ComponentModel.DataAnnotations;
+using System.Security.Cryptography.X509Certificates;
 
-class Car {
-public int milesPerGallon;
-public int gallons;
-public string make;
-public string model;
-
-    
-}
 class Program
 {
     static void Main(string[] args)
@@ -15,23 +12,31 @@ class Program
         Console.WriteLine("Hello Learning02 World!");
 
         var cars = new List<Car>();
-
-        var car = new Car();
-        car.make = "Honda";
-        car.model = "Civic";
-        car.gallons = 10;
-        car.milesPerGallon = 30;
+ 
+        
+        var owner = new Owner();
+        owner.name = "Bob";
+        owner.phone = "222-2222";
+        var car = new Car("Honda", "Civic", 10, 30, owner);
+        car.owner = owner;
         cars.Add(car);
 
-        car = new Car();
-        car.make = "Toyota";
-        car.model = "Corolla";
-        car.gallons = 12;
-        car.milesPerGallon = 35;
+    
+        // car.make = "Toyota";
+        // car.model = "Corolla";
+        // car.gallons = 12;
+        // car.milesPerGallon = 35;
+        owner = new Owner();
+        owner.name = "Sarah";
+        owner.phone = "333-2222";
+        car = new Car("Toyota", "Corolla", 12, 35, owner);
+        car.owner = owner;
         cars.Add(car);
 
         foreach (var c in cars) {
-            System.Console.WriteLine($"{c.make} {c.model}: Range={c.gallons * c.milesPerGallon}");
+            c.Display();
+            int range = c.TotalRange();
         }
     }
 }
+
