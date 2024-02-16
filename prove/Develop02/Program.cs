@@ -30,7 +30,6 @@ class Program
                 journal = new Journal(lines);
             }
             else if (input == "5") {
-        
                 shouldQuit = true;
             }
             else {
