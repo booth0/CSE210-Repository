@@ -13,7 +13,6 @@ class Program
 
         var breathing = new Breathing("Breathing", "Welcome to the Breathing Activity.\n\nThis activity will help you relax by walking through breathing in and out slowly. Clear your mind and focus on your breathing.");
         var reflecting = new Reflecting("Reflecting", "Welcome to the Reflecting Activity.\n\nThis activity will help you recognize the power you have and how you can use it in other aspects of your life.");
-        
         var listing = new Listing("Listing", "Welcome to the Listing Activity.\n\nThis activity will help you reflect on the good things in your life by having you list as many things as you can in a certain area.");
         
         bool stillGoing = true;

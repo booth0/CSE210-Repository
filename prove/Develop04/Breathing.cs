@@ -8,6 +8,7 @@ class Breathing:Activity {
     public Breathing(string activityName, string startingMessage):base(activityName, startingMessage) {
 
         }
+        
     public void BreathingActivity(int duration, Breathing breathing) {
         
         DateTime startTime = DateTime.Now;
