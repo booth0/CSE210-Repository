@@ -1,42 +1,37 @@
 using System;
 using System.Reflection.Metadata;
+using System.Transactions;
 
 class Program
 {
     static void Main(string[] args)
-    {
-        Console.WriteLine("Welcome to the Amazing World of Pokemon!\n\nWould you like to:\n1. Start a new game.\n2. Continue game.");
-        string choice = Console.ReadLine();
+    {   
+        Console.Clear();
+        Console.WriteLine("Welcome to the Amazing World of Pokemon!");
         List<Pokemon> allPokemon = SetupPokemon();
         List<Item> bag = SetupBag();
-        string coolSymbols = "░▒▓ ▄▀ ";
+        // string coolSymbols = "░▒▓ ▄▀ ";
         
-
+        Console.Write("What is your name? ");
+        string trainerName = Console.ReadLine();
+        Console.Clear();
+        Console.Write($"{trainerName}, which Pokemon would you like as a starter?\n  1. Charmander\n  2. Squirtle\n  3. Bulbasaur\nEnter your option here: ");
+        string choice = Console.ReadLine();
+        Pokemon starterPokemon = null;
         switch (choice) {
             case "1":
-            Console.Write("What is your name? ");
-            string trainerName = Console.ReadLine();
-            Console.Write("Which Pokemon would you like as a starter?\n  1. Charmander\n  2. Squirtle\n  3. Bulbasaur\n\nEnter your option here: ");
-            choice = Console.ReadLine();
-            Pokemon starterPokemon = null;
-            switch (choice) {
-                case "1":
-                starterPokemon = allPokemon[0];
-                break;
-                case "2":
-                starterPokemon = allPokemon[1];
-                break;
-                case "3":
-                starterPokemon = allPokemon[2];
-                break;
-            }
-            List<Pokemon> pokeTeam = [starterPokemon];
-            Trainer trainer = new Trainer(trainerName, pokeTeam, bag);
-            Menu(trainer, allPokemon);
+            starterPokemon = allPokemon[0];
             break;
             case "2":
+            starterPokemon = allPokemon[1];
+            break;
+            case "3":
+            starterPokemon = allPokemon[2];
             break;
         }
+        List<Pokemon> pokeTeam = [starterPokemon];
+        Trainer trainer = new Trainer(trainerName, pokeTeam, bag);
+        Menu(trainer, allPokemon);
     }
 
     static void Menu(Trainer trainer, List<Pokemon> allPokemon) {
@@ -46,41 +41,54 @@ class Program
 
         
         Console.Clear();
-        Console.Write("What would you like to do?\n  1. Enter the tall grass.\n  2. Heal at PokeCenter.\n  3. Save Game.\n  4. Quit.\nEnter your choice here: ");
+        Console.Write("What would you like to do?\n  1. Enter the tall grass.\n  2. Heal at PokeCenter.\n  3. View team.\n  4. Quit.\nEnter your choice here: ");
         string choice = Console.ReadLine();
         
 
         switch (choice) {
             case "1":
-            Battle(trainer, allPokemon);
+            trainer = Battle(trainer, allPokemon);
             break;
             case "2":
+            Console.Clear();
+            trainer.PokeTeam = trainer.Healing();
             break;
             case "3":
+            Console.Clear();
+            trainer.DisplayTeam();
+            Console.Write("Press enter to continue: ");
+            Console.ReadKey();
             break;
             case "4":
+            Console.Clear();
+            Console.WriteLine("Thank You for playing!");
+            hasQuit = true;
             break;
         }
         }
     }
 
-    static void Battle(Trainer trainer, List<Pokemon> allPokemon) {
+    static Trainer Battle(Trainer trainer, List<Pokemon> allPokemon) {
         Console.Clear();
-        Pokemon enemyPokemon = allPokemon[2];
+        Random rnd = new Random();
+        int number = rnd.Next(0, 2);
+        Pokemon enemyPokemon = allPokemon[number];
         int enemyHP = enemyPokemon.GetHealth();
         int enemyCurrentHP = enemyPokemon.GetHealth();
         Pokemon trainerPokemon = trainer.GetPokemon();
         int pokeHP = trainerPokemon.GetHealth();
         int pokeCurrentHealth = trainerPokemon.GetCurrentHealth();
-        
-
+        bool battleEnded = false;
+        Move currentMove;
 
         Console.WriteLine("Whoa?");
-            // Add encounter animation here eventually
-            Console.WriteLine($"You encounter a wild {enemyPokemon.GetPokeName()}!");
-            Thread.Sleep(1000);
-            Console.WriteLine($"Go {trainerPokemon.GetPokeName()}!");
-            Thread.Sleep(1000);
+        // Add encounter animation here eventually
+        Console.WriteLine($"You encounter a wild {enemyPokemon.GetPokeName()}!");
+        Thread.Sleep(1000);
+        Console.WriteLine($"Go {trainerPokemon.GetPokeName()}!");
+        Thread.Sleep(1000);
+
+        while (!battleEnded){
             Console.Clear();
             Console.WriteLine($"                                                            {enemyPokemon.GetPokeName()}");
             Console.WriteLine($"                                                            :L{enemyPokemon.GetLevel()}");
@@ -96,19 +104,73 @@ class Program
 
             switch (option.ToLower()) {
                 case "fight":
+                currentMove = trainerPokemon.DisplayMoves();
+                Console.WriteLine($"{trainerPokemon.GetPokeName()} used {currentMove.GetName()}!");
+                Thread.Sleep(700);
+                enemyCurrentHP = enemyCurrentHP - currentMove.CalculateDamage(enemyPokemon, trainerPokemon);
+                Thread.Sleep(700);
+                break;
+
+                case "pokemon":
+                trainer.DisplayTeam();
 
                 break;
-                case "pokemon":
-                break;
+
                 case "bag":
+                    int bagResult = trainer.Bag(enemyCurrentHP, enemyHP);
+                    if (bagResult == 1){
+                        enemyPokemon.CurrentHealth = enemyCurrentHP;
+                        trainer.PokeTeam = trainer.CaughtPokemon(enemyPokemon);
+                        trainer.BattleEndHealth(pokeCurrentHealth);
+                        battleEnded = true;
+                    }
+                    else if (bagResult == 0){}
+                    else {
+
+                        pokeCurrentHealth = bagResult;
+                    }
                 break;
+
                 case "run":
-                Console.WriteLine("\nYou got away safely.");
-                Thread.Sleep(2000);
+                Console.Write("\nYou got away safely.");
+                Thread.Sleep(700);
+                Console.Write(".");
+                Thread.Sleep(700);
+                Console.Write(".");
+                Thread.Sleep(700);
                 Console.Clear();
+                trainer.BattleEndHealth(pokeCurrentHealth);
+                battleEnded = true;
                 break;
             }
+            if (enemyCurrentHP <= 0) {
+                Console.Clear();
+                Console.WriteLine($"You defeated {enemyPokemon.GetPokeName()}!");
+                Thread.Sleep(1500);
+                trainer.BattleEndHealth(pokeCurrentHealth);
+                battleEnded = true;
+            }
+            else if (pokeCurrentHealth <= 0) {
+                Console.Clear();
+                Console.WriteLine($"{trainerPokemon.GetPokeName()} fainted!");
+                Console.WriteLine("You blacked out.");
+                trainer.PokeTeam = trainer.Healing();
+                Thread.Sleep(700);
+                battleEnded = true;
+            }
+            else if (battleEnded == true) {
 
+            }
+            else {
+            // Enemy Pokemon's return attack.
+            currentMove = enemyPokemon.RandomMove();
+                Console.WriteLine($"{enemyPokemon.GetPokeName()} used {currentMove.GetName()}!");
+                Thread.Sleep(500);
+                pokeCurrentHealth = pokeCurrentHealth - currentMove.CalculateDamage(trainerPokemon, enemyPokemon);
+                Thread.Sleep(500);
+            }
+        }
+        return trainer;
     }
 
     static List<Pokemon> SetupPokemon(){

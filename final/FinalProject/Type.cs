@@ -10,4 +10,15 @@ class Type {
         this.weakness = weakness;
         this.resistance = resistance;
     }
+    public string GetName() {
+        return typeName;
+    }
+    public string GetWeakness() {
+        return weakness;
+    }
+    public string GetResistance() {
+        return resistance;
+    }
+
+    
 }
